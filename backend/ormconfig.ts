@@ -11,7 +11,7 @@ export const connectionSource = new DataSource({
   migrations: [
     "./src/database/migrations/*.ts"
   ],
-  /*"cli": {
-    "migrationsDir": "./src/database/migrations"
-  }*/
+  entities: [
+    "./src/entities/*.ts"
+  ]
 });
