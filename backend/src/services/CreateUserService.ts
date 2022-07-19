@@ -1,6 +1,7 @@
 import User from "../entities/User";
 import {getRepository} from "typeorm";
 import {hash} from "bcryptjs";
+import {uuid} from "uuidv4";
 
 interface IRequest {
   name: string;
@@ -22,7 +23,7 @@ class CreateUserService {
     const passwordHash = await hash(password, 8);
 
     const user = userRepository.create({
-      name, email, password: passwordHash
+      id: uuid(), name, email, password: passwordHash
     });
 
     await userRepository.save(user);
