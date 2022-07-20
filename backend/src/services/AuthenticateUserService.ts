@@ -19,7 +19,7 @@ class AuthenticateUserService {
   async execute({ password, email }: IRequest): Promise<IResponse> {
     const userRepository = getRepository(User);
 
-    const user = await userRepository.findOne({ where: { email }});
+    const user = await userRepository.findOne({ where: { email } });
 
     if (!user) {
       throw Error("Incorrect email/password combination.");
