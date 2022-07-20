@@ -117,3 +117,7 @@ dist
 .pnp.*
 yarn.lock
 
+ormconfig.json
+
+/**/tmp/*
+

@@ -2,6 +2,7 @@ import User from "../entities/User";
 import {getRepository} from "typeorm";
 import {hash} from "bcryptjs";
 import {uuid} from "uuidv4";
+import AppError from "../errors/AppError";
 
 interface IRequest {
   name: string;
@@ -17,7 +18,7 @@ class CreateUserService {
     const checkUserExists = await userRepository.findOne({ where: { email } });
 
     if (checkUserExists) {
-      throw Error("Email already exists");
+      throw new AppError("Email already exists");
     }
 
     const passwordHash = await hash(password, 8);
