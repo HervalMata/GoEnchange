@@ -1,14 +1,15 @@
 import React, { useCallback, useRef } from 'react';
 
 import { FiLock, FiLogIn, FiMail } from 'react-icons/fi';
+import * as Yup from 'yup';
+import { Form } from '@unform/web';
+import { FormHandles } from '@unform/core';
 import logoImg from '../../assets/logo.png';
 import { Container, Content, Background } from './styles';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
-import { FormHandles } from '@unform/core';
-import * as Yup from 'yup';
 import getValidationErrors from '../../utils/getValidationErrors';
-import { useAuth } from "../../hooks/AuthContext";
+import { useAuth } from '../../hooks/auth';
 
 interface SignInFormData {
   email: string;
@@ -20,33 +21,33 @@ const SignIn: React.FC = () => {
   const { signIn } = useAuth();
 
   const handleSubmit = useCallback(async (data: SignInFormData) => {
-    try {
-      formRef.current?.setErrors({});
+      try {
+        formRef.current?.setErrors({});
 
-      const schema = Yup.object().shape({
-        email: Yup.string().required('Email obrigatório').email('Digite um email válido'),
-        password: Yup.string().required('Senha obrigatória'),
-      });
+        const schema = Yup.object().shape({
+          email: Yup.string().required('Email obrigatório').email('Digite um email válido'),
+          password: Yup.string().required('Senha obrigatória'),
+        });
 
-      await schema.validate(data, {
-        abortEarly: false
-      });
+        await schema.validate(data, {
+          abortEarly: false,
+        });
 
-      await signIn({email: data.email, password: data.password});
-    } catch (err) {
-      // @ts-ignore
-      const errors = getValidationErrors(err);
+        await signIn({ email: data.email, password: data.password });
+      } catch (err) {
+        // @ts-ignore
+        const errors = getValidationErrors(err);
 
-      formRef.current?.setErrors(errors);
-    }
-  }, [signIn]);
+        formRef.current?.setErrors(errors);
+      }
+    },    [signIn]  );
 
   return (
     <Container>
       <Content>
         <img src={logoImg} alt="Logo GoExchange" />
 
-        <form>
+        <Form onSubmit={handleSubmit}>
           <h1>Faça seu login</h1>
 
           <Input name="email" icon={FiMail} placeholder="Email" />
@@ -55,7 +56,7 @@ const SignIn: React.FC = () => {
           <Button type="submit">Entrar</Button>
 
           <a href="forgot">Esqueci minha senha</a>
-        </form>
+        </Form>
         <a href="login">
           <FiLogIn />
           Criar conta
