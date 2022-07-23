@@ -21,7 +21,7 @@ interface Props {
   children: any;
 }
 
-const Auth = createContext<AuthContextData>( {} as AuthContextData);
+const AuthContext = createContext<AuthContextData>( {} as AuthContextData);
 
 const AuthProvider: React.FC<Props> = ({ children }) => {
   const [data, setData] = useState<AuthState>(() => {
@@ -60,14 +60,14 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
 
 
   return (
-    <Auth.Provider value={{ user: data.user, signIn, signOut }}>
+    <AuthContext.Provider value={{ user: data.user, signIn, signOut }}>
       {children}
-    </Auth.Provider>
+    </AuthContext.Provider>
   );
 };
 
 function useAuth(): AuthContextData {
-  const context = useContext(Auth);
+  const context = useContext(AuthContext);
 
   if (!context) {
     throw new Error('useAuth must be use within an AuthProvider');

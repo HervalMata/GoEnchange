@@ -1,59 +1,94 @@
 import React, { useCallback, useRef } from 'react';
+import { Link, useHistory } from 'react-router-dom';
 import { FiArrowLeft, FiLock, FiMail, FiUser } from 'react-icons/fi';
+import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
 import * as Yup from 'yup';
-import { FormHandles } from '@unform/core';
-import { Container, Content, Background } from './styles';
+import getValidationErrors from '../../utils/getValidationErrors';
+import api from '../../services/api';
+import { useToast } from '../../hooks/toast';
 import logoImg from '../../assets/logo.png';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
-import getValidationErrors from '../../utils/getValidationErrors';
+import { Container, Content, Background, AnimationContainer } from './styles';
+
+interface SignUpFormData {
+  name: string;
+  email: string;
+  password: string;
+}
 
 const SignUp: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
 
-  const handleSubmit = useCallback(async (data: object) => {
-    try {
-      formRef.current?.setErrors({});
+  const { addToast } = useToast();
+  const history = useHistory();
 
-      const schema = Yup.object().shape({
-        name: Yup.string().required('Nome obrigatório'),
-        email: Yup.string().required('Email obrigatório').email('Digite um email válido'),
-        password: Yup.string().min(6, 'No minino 6 digitos'),
-      });
+  const handleSubmit = useCallback(async (data: SignUpFormData) => {
+      try {
+        formRef.current?.setErrors({});
 
-      await schema.validate(data, {
-        abortEarly: false,
-      });
-    } catch (err) {
-      // @ts-ignore
-      const errors = getValidationErrors(err);
+        const schema = Yup.object().shape({
+          name: Yup.string().required('Nome obrigatório'),
+          email: Yup.string().required('Email obrigatório').email('Digite um email válido'),
+          password: Yup.string().min(6, 'No minino 6 digitos'),
+        });
 
-      formRef.current?.setErrors(errors);
-    }
-  }, []);
+        await schema.validate(data, {
+          abortEarly: false,
+        });
+
+        await api.post('users', data);
+
+        addToast({
+          type: 'success',
+          title: 'Cadastro realizado!',
+          description: 'Você já pode fazer seu login no GoExchange',
+        });
+
+        history.push('/');
+      } catch (err) {
+        if (err instanceof Yup.ValidationError) {
+          const errors = getValidationErrors(err);
+
+          formRef.current?.setErrors(errors);
+
+          return;
+        }
+
+        addToast({
+          type: 'error',
+          title: 'Erro no cadastro',
+          description: 'Ocorreu um erro ao fazer o cadastro. Tente novamente.',
+        });
+      }
+    },
+    [addToast, history],
+  );
 
   return (
     <Container>
       <Background />
       <Content>
-        <img src={logoImg} alt="Logo GoExchange" />
+        <AnimationContainer>
+          <img src={logoImg} alt="Logo GoExchange" />
 
-        <Form ref={formRef} onSubmit={handleSubmit}>
-          <h1>Faça seu cadastro</h1>
+          <Form ref={formRef} onSubmit={handleSubmit}>
+            <h1>Faça seu cadastro</h1>
 
-          <Input name="name" icon={FiUser} placeholder="Email" />
-          <Input name="email" icon={FiMail} placeholder="Email" />
-          <Input name="password" type="password" icon={FiLock} placeholder="Senha" />
+            <Input name="name" icon={FiUser} placeholder="Email" />
+            <Input name="email" icon={FiMail} placeholder="Email" />
+            <Input name="password" type="password" icon={FiLock} placeholder="Senha" />
 
-          <Button type="submit">Cadastrar</Button>
+            <Button type="submit">Cadastrar</Button>
 
-          <a href="forgot">Esqueci minha senha</a>
-        </Form>
-        <a href="login">
-          <FiArrowLeft />
-          Voltar para o login
-        </a>
+            <a href="forgot">Esqueci minha senha</a>
+          </Form>
+          <Link to="/">
+            <FiArrowLeft />
+            Voltar para o login
+          </Link>
+        </AnimationContainer>
       </Content>
     </Container>
   );
