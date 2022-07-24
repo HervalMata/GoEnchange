@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { FormHandles } from '@unform/core';
 import { Form } from '@unform/mobile';
 import * as Yup from 'yup';
+import { useAuth } from '../../hooks/auth';
 import getValidationErrors from '../../utils/getValidationErrors';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
@@ -19,6 +20,7 @@ interface SignInFormData {
 
 const SignIn: React.FC = () => {
   const navigation = useNavigation();
+  const { signIn } = useAuth();
   const formRef = useRef<FormHandles>(null);
   const passwordInputRef = useRef<TextInput>(null);
 
@@ -35,7 +37,10 @@ const SignIn: React.FC = () => {
           abortEarly: false,
         });
 
-        // await api.post('users', data);
+        await signIn({
+          email: data.email,
+          password: data.password,
+        });
 
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
@@ -52,7 +57,7 @@ const SignIn: React.FC = () => {
         );
       }
     },
-    [],
+    [signIn],
   );
 
   return (
